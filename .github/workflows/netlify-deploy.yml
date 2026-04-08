@@ -1,0 +1,65 @@
+name: Deploy to Netlify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        app: [web, admin]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          cd apps/${{ matrix.app }}
+          npm ci
+
+      - name: Build
+        run: |
+          cd apps/${{ matrix.app }}
+          npm run build
+
+      - name: Deploy to Netlify (Web)
+        if: matrix.app == 'web'
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          publish-dir: './apps/web/dist'
+          production-branch: main
+          production-deploy: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: 'Production Deploy - AQUASTROKE Web Platform'
+          enable-pull-request-comment: true
+          enable-commit-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_WEB }}
+
+      - name: Deploy to Netlify (Admin)
+        if: matrix.app == 'admin'
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          publish-dir: './apps/admin/dist'
+          production-branch: main
+          production-deploy: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: 'Production Deploy - AQUASTROKE Admin Dashboard'
+          enable-pull-request-comment: true
+          enable-commit-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_ADMIN }}

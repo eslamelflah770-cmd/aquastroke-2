@@ -4,6 +4,7 @@
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
+    "moduleResolution": "bundler",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -19,6 +20,7 @@
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "allowImportingTsExtensions": true,
     "noEmit": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
@@ -27,5 +29,5 @@
     }
   },
   "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "exclude": ["node_modules"]
 }

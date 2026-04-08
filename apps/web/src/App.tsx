@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, Session } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export default function App() {
   const [loading, setLoading] = useState(true)
-  const [session, setSession] = useState(null)
+  const [session, setSession] = useState<Session | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -46,7 +46,7 @@ export default function App() {
         {session ? (
           <div className="bg-white rounded-lg shadow p-8">
             <h2 className="text-2xl font-bold mb-4">Welcome Back!</h2>
-            <p className="text-gray-600 mb-6">You are logged in as: {session.user?.email}</p>
+            <p className="text-gray-600 mb-6">You are logged in as: {session?.user?.email}</p>
             <button
               onClick={() => supabase.auth.signOut()}
               className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"

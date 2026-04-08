@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, Session } from '@supabase/supabase-js'
 import { BarChart3, Users, Calendar, TrendingUp } from 'lucide-react'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export default function App() {
   const [loading, setLoading] = useState(true)
-  const [session, setSession] = useState(null)
+  const [session, setSession] = useState<Session | null>(null)
   const [stats, setStats] = useState({
     athletes: 0,
     coaches: 0,

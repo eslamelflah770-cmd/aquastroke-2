@@ -1,3 +1,6 @@
+# AQUASTROKE - Netlify Configuration
+
+# Web Platform
 [[redirects]]
   from = "/*"
   to = "/index.html"

@@ -17,31 +17,21 @@ jobs:
         node-version: [18.x, 20.x]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
 
-      - name: Install dependencies (Mobile)
-        run: cd mobile/aquastroke && npm ci
+      - name: Install dependencies
+        run: npm install
 
-      - name: Install dependencies (Web)
-        run: cd web/aquastroke-web && npm ci
+      - name: Build Web Platform
+        run: npm run build -w @aquastroke/web
 
-      - name: Lint (Mobile)
-        run: cd mobile/aquastroke && npm run lint --if-present
-
-      - name: Lint (Web)
-        run: cd web/aquastroke-web && npm run lint --if-present
-
-      - name: Build (Mobile)
-        run: cd mobile/aquastroke && npm run build --if-present
-
-      - name: Build (Web)
-        run: cd web/aquastroke-web && npm run build
+      - name: Build Admin Dashboard
+        run: npm run build -w @aquastroke/admin
 
   deploy-web:
     needs: test
@@ -49,53 +39,64 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Deploy to Netlify
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Web Platform
+        run: npm run build -w @aquastroke/web
+
+      - name: Deploy Web to Netlify
         uses: netlify/actions/cli@master
         with:
-          args: deploy --prod
+          args: deploy --prod --dir=apps/web/dist
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
-  deploy-mobile:
+  deploy-admin:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          cache: 'npm'
+          node-version: '18'
 
-      - name: Install Expo CLI
-        run: npm install -g eas-cli
+      - name: Install dependencies
+        run: npm install
 
-      - name: Build Android
-        run: cd mobile/aquastroke && eas build --platform android --non-interactive
+      - name: Build Admin Dashboard
+        run: npm run build -w @aquastroke/admin
+
+      - name: Deploy Admin to Netlify
+        uses: netlify/actions/cli@master
+        with:
+          args: deploy --prod --dir=apps/admin/dist
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-      - name: Build iOS
-        run: cd mobile/aquastroke && eas build --platform ios --non-interactive
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
   notify:
-    needs: [deploy-web, deploy-mobile]
+    needs: [deploy-web, deploy-admin]
     runs-on: ubuntu-latest
     if: always()
 
     steps:
       - name: Send Slack Notification
-        uses: slackapi/slack-github-action@v1
+        uses: slackapi/slack-github-action@v1.24.0
         with:
-          webhook-url: ${{ secrets.SLACK_WEBHOOK }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
           payload: |
             {
               "text": "AQUASTROKE Deployment Status",

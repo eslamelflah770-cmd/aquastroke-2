@@ -94,9 +94,9 @@ jobs:
 
     steps:
       - name: Send Slack Notification
+        if: ${{ secrets.SLACK_WEBHOOK != '' }}
         uses: slackapi/slack-github-action@v1.24.0
         with:
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
           payload: |
             {
               "text": "AQUASTROKE Deployment Status",
@@ -110,3 +110,6 @@ jobs:
                 }
               ]
             }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

@@ -1,6 +1,8 @@
-# AQUASTROKE - Netlify Configuration
+[build]
+  base = "apps/web"
+  publish = "dist"
+  command = "npm install && npm run build"
 
-# Web Platform
 [[redirects]]
   from = "/*"
   to = "/index.html"

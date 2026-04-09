@@ -21,16 +21,16 @@ jobs:
           cache: 'npm'
 
       - name: Install root dependencies
-        run: npm ci --verbose
+        run: npm ci
 
       - name: List workspaces
         run: npm ls -w --depth=0
 
       - name: Build Web Platform
-        run: npm run build --workspace=@aquastroke/web
+        run: npm run build -w @aquastroke/web
 
       - name: Build Admin Dashboard
-        run: npm run build --workspace=@aquastroke/admin
+        run: npm run build -w @aquastroke/admin
 
       - name: Upload Web artifacts
         uses: actions/upload-artifact@v4

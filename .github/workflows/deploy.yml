@@ -121,30 +121,3 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-
-  notify:
-    needs: [deploy-web, deploy-admin, deploy-backend]
-    runs-on: ubuntu-latest
-    if: always()
-
-    steps:
-      - name: Send Slack Notification
-        if: ${{ secrets.SLACK_WEBHOOK != '' }}
-        uses: slackapi/slack-github-action@v1.24.0
-        with:
-          payload: |
-            {
-              "text": "AQUASTROKE Deployment Status",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "Deployment Status: ${{ job.status }}\nCommit: ${{ github.sha }}\nBranch: ${{ github.ref }}"
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

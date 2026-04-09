@@ -21,7 +21,10 @@ jobs:
           cache: 'npm'
 
       - name: Install root dependencies
-        run: npm ci
+        run: npm ci --verbose
+
+      - name: List workspaces
+        run: npm ls -w --depth=0
 
       - name: Build Web Platform
         run: npm run build --workspace=@aquastroke/web

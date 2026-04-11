@@ -7,6 +7,7 @@ dotenv.config({ path: '.env.local' })
 dotenv.config()
 
 const app = express()
+const PORT = process.env.PORT || 3000
 
 const SUPABASE_URL = process.env.SUPABASE_URL || ''
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
@@ -105,6 +106,10 @@ app.post('/api/attendance', async (req, res) => {
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err)
   res.status(500).json({ error: 'Internal server error' })
+})
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(⁠ AQUASTROKE Backend running on port ${PORT} ⁠)
 })
 
 export default app

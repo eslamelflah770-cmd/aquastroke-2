@@ -3,88 +3,59 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import { createClient } from '@supabase/supabase-js'
 
-// Load environment variables
 dotenv.config({ path: '.env.local' })
 dotenv.config()
 
 const app = express()
-const PORT = process.env.PORT || 3001
 
-// Validate required environment variables
-const SUPABASE_URL = process.env.SUPABASE_URL
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+const SUPABASE_URL = process.env.SUPABASE_URL || ''
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 
-if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-  console.error('❌ Missing required environment variables:')
-  if (!SUPABASE_URL) console.error('  - SUPABASE_URL')
-  if (!SUPABASE_SERVICE_ROLE_KEY) console.error('  - SUPABASE_SERVICE_ROLE_KEY')
-  process.exit(1)
-}
-
-// Middleware
 app.use(cors())
 app.use(express.json())
 
-// Supabase Client
-const supabase = createClient(
-  SUPABASE_URL,
-  SUPABASE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
-// Health Check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() })
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    supabase: SUPABASE_URL ? 'connected' : 'missing'
+  })
 })
 
-// API Routes
-app.get('/api/plans', async (req, res) => {
+app.get('/api/weekly-plans', async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from('plans')
+      .from('weekly_plans')
       .select('*')
       .order('created_at', { ascending: false })
-
     if (error) throw error
     res.json(data)
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch plans' })
+    res.status(500).json({ error: 'Failed to fetch weekly plans' })
   }
 })
 
-app.post('/api/plans', async (req, res) => {
+app.post('/api/weekly-plans', async (req, res) => {
   try {
-    const { name, description, level, duration_weeks } = req.body
-
     const { data, error } = await supabase
-      .from('plans')
-      .insert([
-        {
-          name,
-          description,
-          level,
-          duration_weeks,
-          created_at: new Date().toISOString(),
-        },
-      ])
+      .from('weekly_plans')
+      .insert([req.body])
       .select()
-
     if (error) throw error
     res.status(201).json(data[0])
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create plan' })
+    res.status(500).json({ error: 'Failed to create weekly plan' })
   }
 })
 
-app.get('/api/sessions/:planId', async (req, res) => {
+app.get('/api/sessions', async (req, res) => {
   try {
-    const { planId } = req.params
-
     const { data, error } = await supabase
       .from('sessions')
       .select('*')
-      .eq('plan_id', planId)
-      .order('week_number', { ascending: true })
-
+      .order('created_at', { ascending: false })
     if (error) throw error
     res.json(data)
   } catch (error) {
@@ -94,24 +65,10 @@ app.get('/api/sessions/:planId', async (req, res) => {
 
 app.post('/api/sessions', async (req, res) => {
   try {
-    const { plan_id, week_number, day_of_week, title, description, distance, time_minutes } = req.body
-
     const { data, error } = await supabase
       .from('sessions')
-      .insert([
-        {
-          plan_id,
-          week_number,
-          day_of_week,
-          title,
-          description,
-          distance,
-          time_minutes,
-          created_at: new Date().toISOString(),
-        },
-      ])
+      .insert([req.body])
       .select()
-
     if (error) throw error
     res.status(201).json(data[0])
   } catch (error) {
@@ -119,16 +76,12 @@ app.post('/api/sessions', async (req, res) => {
   }
 })
 
-app.get('/api/attendance/:athleteId', async (req, res) => {
+app.get('/api/attendance', async (req, res) => {
   try {
-    const { athleteId } = req.params
-
     const { data, error } = await supabase
       .from('attendance')
       .select('*')
-      .eq('athlete_id', athleteId)
-      .order('date', { ascending: false })
-
+      .order('created_at', { ascending: false })
     if (error) throw error
     res.json(data)
   } catch (error) {
@@ -138,22 +91,10 @@ app.get('/api/attendance/:athleteId', async (req, res) => {
 
 app.post('/api/attendance', async (req, res) => {
   try {
-    const { athlete_id, session_id, date, status, notes } = req.body
-
     const { data, error } = await supabase
       .from('attendance')
-      .insert([
-        {
-          athlete_id,
-          session_id,
-          date,
-          status,
-          notes,
-          created_at: new Date().toISOString(),
-        },
-      ])
+      .insert([req.body])
       .select()
-
     if (error) throw error
     res.status(201).json(data[0])
   } catch (error) {
@@ -161,15 +102,9 @@ app.post('/api/attendance', async (req, res) => {
   }
 })
 
-// Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err)
   res.status(500).json({ error: 'Internal server error' })
-})
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 AQUASTROKE Backend running on port ${PORT}`)
 })
 
 export default app

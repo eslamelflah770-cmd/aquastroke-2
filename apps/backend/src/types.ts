@@ -3,6 +3,8 @@
  * Comprehensive type definitions for all API entities
  */
 
+import { Request } from 'express'
+
 export interface AuthUser {
   id: string
   email: string
@@ -10,7 +12,7 @@ export interface AuthUser {
   academy_id?: string
 }
 
-export interface AuthRequest extends Express.Request {
+export interface AuthRequest extends Request {
   user?: AuthUser
 }
 

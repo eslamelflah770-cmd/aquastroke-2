@@ -6,8 +6,8 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import { ZodSchema } from 'zod'
-import { AuthRequest, AuthUser, ApiResponse, ErrorResponse } from './types'
-import { logger } from './logger'
+import { AuthRequest, AuthUser, ApiResponse, ErrorResponse } from './types.js'
+import { logger } from './logger.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 

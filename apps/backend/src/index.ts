@@ -5,7 +5,7 @@
 
 import express, { Request, Response } from 'express'
 import dotenv from 'dotenv'
-import { supabase, checkConnection, getFiltered, getPaginated, create, update, deleteRecord, getById } from './db'
+import { supabase, checkConnection, getFiltered, getPaginated, create, update, deleteRecord, getById } from './db.js'
 import {
   authMiddleware,
   requireRole,
@@ -18,7 +18,7 @@ import {
   rateLimitMiddleware,
   successResponse,
   errorResponse,
-} from './middleware'
+} from './middleware.js'
 import {
   CreateWeeklyPlanSchema,
   UpdateWeeklyPlanSchema,
@@ -34,9 +34,9 @@ import {
   UpdateTrialResultSchema,
   PaginationSchema,
   FilterSchema,
-} from './validation'
-import { logger } from './logger'
-import { AuthRequest, ApiResponse } from './types'
+} from './validation.js'
+import { logger } from './logger.js'
+import { AuthRequest, ApiResponse } from './types.js'
 
 // Load environment variables
 dotenv.config({ path: '.env.local' })

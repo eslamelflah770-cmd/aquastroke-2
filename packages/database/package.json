@@ -1,0 +1,10 @@
+{
+  "name": "@aquastroke/database",
+  "version": "1.0.0",
+  "description": "AQUASTROKE Database Schema & Migrations",
+  "private": true,
+  "scripts": {
+    "migrate": "echo 'Run schema.sql in Supabase console'",
+    "generate": "echo 'Generate types from Supabase'"
+  }
+}
